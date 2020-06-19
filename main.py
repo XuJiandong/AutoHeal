@@ -7,7 +7,7 @@ import sys
 import time
 
 SAVE_SCREENSHOT=True
-RETINA=True
+RETINA=False
 
 #
 # sample data:
