@@ -1,9 +1,9 @@
 # Auto Heal
 
 ## Game Setting
-Location of health text
-Location of Grid position
-extra tool to report location (format x, y)
+- Location of health text.
+- Location of Grid position.
+- extra tool to report location (format x, y).
 
 ## Output Raid Members' Health to Screen
 WeakAura
@@ -25,5 +25,6 @@ Python module: pyautogui
 https://pyautogui.readthedocs.io/en/latest/
 
 ## Operation
-Lefe click on Grid to enable
-Right click on Grid to disable
+- Lefe click on Grid to enable.
+- Right click on Grid to disable
+need more module.
