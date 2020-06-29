@@ -1,3 +1,6 @@
+require "WA_Test"
+
+
 aura_env.lastRun = GetTime()
 aura_env.text = "N/A"
 
