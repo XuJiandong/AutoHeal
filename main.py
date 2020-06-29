@@ -54,18 +54,18 @@ class Config():
         else:
             print("no config loaded, start to calibrate ...")
 
-        monitor_ctrl()
-        print("Please hold ctrl key and then click the start of text area")
-        (self.text_x, self.text_y) = get_position_with_ctrl_click()
+        #monitor_ctrl()
+        print("Please right click the start of text area")
+        (self.text_x, self.text_y) = get_position_with_click()
         time.sleep(2)
-        print("Please hold ctrl key and then click the end of text area")
-        (self.text_x_end, self.text_y_end) = get_position_with_ctrl_click()
+        print("Please right click the end of text area")
+        (self.text_x_end, self.text_y_end) = get_position_with_click()
         time.sleep(2)
-        print("Please hold ctrl key and then click the start of grid")
-        (self.grid_x, self.grid_y) = get_position_with_ctrl_click()
+        print("Please right click the start of grid")
+        (self.grid_x, self.grid_y) = get_position_with_click()
         time.sleep(2)
-        print("Please hold ctrl key and then click the end of grid")
-        (self.grid_x_end, self.grid_y_end) = get_position_with_ctrl_click()
+        print("Please right click the end of grid")
+        (self.grid_x_end, self.grid_y_end) = get_position_with_click()
         time.sleep(2)
 
         self.save()
@@ -128,10 +128,10 @@ def is_ctrl_pressed():
     global CTRL_PRESSED
     return CTRL_PRESSED
 
-def get_position_with_ctrl_click():
+def get_position_with_click():
     with mouse.Events() as events:
         for event in events:
-            if isinstance(event, mouse.Events.Click) and event.button == mouse.Button.left and is_ctrl_pressed():
+            if isinstance(event, mouse.Events.Click) and event.button == mouse.Button.right:
                 x, y = pag.position()
                 if RETINA:
                     x *= 2
