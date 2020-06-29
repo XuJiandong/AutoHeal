@@ -1,26 +1,36 @@
-from PIL import Image
+from mss import mss
 import pyautogui as pag
 import pytesseract
-import PIL.ImageGrab
 import argparse
 import sys
 import time
+import cv2
+import numpy as np
+
 
 SAVE_SCREENSHOT=True
-RETINA=False
+RETINA=True
 
-#
-# sample data:
-# 100-200-300-400-500-600-700-800
-# 10-20-30-40-50-60-70-80
-# 1-2-3-4-5-6-7-8
-# 
-def screenshot_ocr(left_x, top_y, right_x, bottom_y):
-    image = PIL.ImageGrab.grab(bbox=(left_x, top_y, right_x, bottom_y))
-    if SAVE_SCREENSHOT:
-        image.save("screenshot.png")
-    result = pytesseract.image_to_string(image, config='digits')
+CUSTOM_CONFIG = r'-c tessedit_char_whitelist=0123456789 --psm 6'
+def image_to_digits(img):
+    global CUSTOM_CONFIG
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # gray
+    img = cv2.bitwise_not(img) # invert
+    result = pytesseract.image_to_string(img, config=CUSTOM_CONFIG)
+    # add validation here
     return result
+
+
+def captured_screens():
+    mon = {'top': 0, 'left': 0, 'width': 400, 'height': 400}
+    with mss() as sct:
+        while True:
+            last_time = time.time()
+            img = sct.grab(mon)
+            img = np.array(img)
+            #MSS returns raw pixels in the BGRA form (Blue, Green, Red, Alpha). reshape from BGRA to BGR
+            img = cv2.cvtColor(img, cv2.COLOR_BGRA2BGR)
+            yield img
 
 
 def show_location():
@@ -51,4 +61,10 @@ if __name__ == "__main__":
         show_location()
         sys.exit(0)
     if args.test:
-        print(screenshot_ocr(90, 105, 460, 235))
+        for img in captured_screens():
+            cv2.imshow("image", img)
+            cv2.waitKey(0)
+            # print("new image")
+            print(image_to_digits(img))
+            time.sleep(2)
+        sys.exit(0)
