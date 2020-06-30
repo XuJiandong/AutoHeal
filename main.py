@@ -11,8 +11,8 @@ import platform
 import json
 from pynput import keyboard, mouse
 from pynput.keyboard import Key, Controller
-import threading
 import os
+import math
 
 
 SAVE_SCREENSHOT=False
@@ -54,7 +54,6 @@ class Config():
         else:
             print("no config loaded, start to calibrate ...")
 
-        #monitor_ctrl()
         print("Please right click the start of text area")
         (self.text_x, self.text_y) = get_position_with_click()
         time.sleep(2)
@@ -106,27 +105,6 @@ class Config():
 
 CONFIG = Config()
 
-CTRL_PRESSED = False
-def on_press(key):
-    global CTRL_PRESSED
-    if key == Key.ctrl:
-        CTRL_PRESSED = True
-
-def on_release(key):
-    global CTRL_PRESSED
-    if key == Key.ctrl:
-        CTRL_PRESSED = False
-
-def monitor_ctrl():
-    def m():
-        with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-            listener.join()
-    thread2 = threading.Thread(target=m, args=())
-    thread2.start()
-
-def is_ctrl_pressed():
-    global CTRL_PRESSED
-    return CTRL_PRESSED
 
 def get_position_with_click():
     with mouse.Events() as events:
@@ -152,6 +130,33 @@ def image_to_digits(img):
     result = pytesseract.image_to_string(img, config=CUSTOM_CONFIG)
     # add validation here
     return result
+
+def validate_text(text):
+    if text == None or len(text) != 6:
+        return False
+    return True
+
+
+def get_index(text):
+    ret = 0
+    try:
+        ret = int(text[0:2])
+    except Exception as e:
+        ret = 0
+    return ret
+
+def get_location_by_index(index, c: Config):
+    # zero based
+    grid_x_size = (c.grid_x_end - c.grid_x)/c.grid_x_count
+    grid_y_size = (c.grid_y_end - c.grid_y)/c.grid_y_count
+
+    x = math.floor(index / c.grid_y_count)
+    y = index % c.grid_y_count - 1
+
+    pos_x = x*grid_x_size + grid_x_size/2 + c.grid_x
+    pos_y = y*grid_y_size + grid_y_size/2 + c.grid_y
+    # TODO: add random margin
+    return pos_x, pos_y
 
 
 def captured_text_screens():
@@ -202,3 +207,18 @@ if __name__ == "__main__":
             print("get text:", image_to_digits(img))
             time.sleep(2)     
         os._exit(0)
+
+    # main routine
+    CONFIG.calibrate()
+    print("---------- started, press ctrl+C to stop ------------")
+    for img in captured_text_screens():
+        text = image_to_digits(img)
+        if not validate_text(text):
+            print(f"invalid text: {text}")
+        else:
+            print("get text:", text)
+            index = get_index(text)
+            x, y = get_location_by_index(index, CONFIG)
+            pag.moveTo(x, y, duration=0.3)
+
+        time.sleep(2)
