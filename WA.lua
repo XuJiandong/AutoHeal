@@ -1,10 +1,9 @@
-require "WA_Test"
-
-
-aura_env.lastRun = GetTime()
+aura_env.lastRun = nil
 aura_env.text = "N/A"
+aura_env.fre = 0.5
 
-local function smaller(value) 
+
+local function smaller(value)
     return math.floor(value/100)
 end
 
@@ -25,7 +24,7 @@ end
 
 aura_env.createDisplayText = function()
     local now = GetTime()
-    if aura_env.lastRun == nil or (now - aura_env.lastRun) > 0.5 then
+    if aura_env.lastRun == nil or (now - aura_env.lastRun) > aura_env.fre then
         aura_env.text = aura_env.display()
         aura_env.lastRun = now
     end
