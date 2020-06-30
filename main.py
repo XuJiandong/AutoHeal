@@ -38,10 +38,10 @@ class Config():
         self.grid_x_end = 0
         self.grid_y_end = 0
 
-        self.grid_x_count = 5
-        self.grid_y_count = 8
-        self.move_duration = 0.3
-        self.loop_interval = 2
+        self.grid_x_count = 8
+        self.grid_y_count = 5
+        self.move_duration = 0.2
+        self.loop_interval = 0.5
 
     def calibrate(self):
         success = self.load()
@@ -120,14 +120,9 @@ def get_position_with_click():
 
 def image_to_digits(img):
     global CUSTOM_CONFIG
-    global SAVE_SCREENSHOT
-
-    if SAVE_SCREENSHOT:
-        cv2.imwrite('screen.png', img)
-        print("save screenshot to screen.png")
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # gray
-    img = cv2.bitwise_not(img) # invert
+    #img = cv2.bitwise_not(img) # invert
     result = pytesseract.image_to_string(img, config=CUSTOM_CONFIG)
     # add validation here
     return result
@@ -151,8 +146,8 @@ def get_location_by_index(index, c: Config):
     grid_x_size = (c.grid_x_end - c.grid_x)/c.grid_x_count
     grid_y_size = (c.grid_y_end - c.grid_y)/c.grid_y_count
 
-    x = math.floor(index / c.grid_y_count)
-    y = index % c.grid_y_count - 1
+    x = math.floor((index-1)/ c.grid_y_count)
+    y = (index - 1) % c.grid_y_count
 
     pos_x = x*grid_x_size + grid_x_size/2 + c.grid_x
     pos_y = y*grid_y_size + grid_y_size/2 + c.grid_y
@@ -164,6 +159,7 @@ def captured_text_screens():
     global CONFIG
     mon = {'left': CONFIG.text_x, 'top': CONFIG.text_y, 
         'width': CONFIG.text_x_end - CONFIG.text_x, 'height': CONFIG.text_y_end - CONFIG.text_y}
+    print(f"left: {mon['left']}, top: {mon['top']}, width: {mon['width']}, height: {mon['height']} ")
     with mss() as sct:
         while True:
             last_time = time.time()
@@ -215,6 +211,9 @@ if __name__ == "__main__":
     for img in captured_text_screens():
         text = image_to_digits(img)
         if not validate_text(text):
+            if SAVE_SCREENSHOT:
+                cv2.imwrite('screen.png', img)
+                print("save screenshot to screen.png")
             print(f"invalid text: {text}")
         else:
             print("get text:", text)
