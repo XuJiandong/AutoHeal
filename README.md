@@ -1,30 +1,28 @@
 # Auto Heal
 
 ## Game Setting
-- Location of health text.
-- Location of Grid position.
-- extra tool to report location (format x, y).
+- Location of health text
+- Location of Grid position
 
-## Output Raid Members' Health to Screen
+## Output Raid Member of the Lowest Health to Screen
 WeakAura
 
 ## Take Screenshot
-Python module: pillow
-https://pillow.readthedocs.io/en/3.1.x/reference/ImageGrab.html
+Python module: mss
+https://pypi.org/project/mss/
+
 
 ## OCR Screenshot
 Python module: pytesseract
 https://github.com/madmaze/pytesseract
 
-## Locate Lowest Health Member
-Python code
 
 ## Move Mouse
-Python module: pyautogui
+Move mouse according to the index. Python module: pyautogui pynput
 
 https://pyautogui.readthedocs.io/en/latest/
+https://pypi.org/project/pynput/
 
-## Operation
+## Operation (optional)
 - Lefe click on Grid to enable.
 - Right click on Grid to disable
-need more module.

@@ -22,7 +22,6 @@ CONFIG_FILE_NAME = "config.json"
 
 if platform.system() == "Darwin":
     RETINA = True
-    print("Mac detected, set RETINA=True")
 else:
     RETINA = False
 RETINA = False
@@ -41,6 +40,8 @@ class Config():
 
         self.grid_x_count = 5
         self.grid_y_count = 8
+        self.move_duration = 0.3
+        self.loop_interval = 2
 
     def calibrate(self):
         success = self.load()
@@ -219,6 +220,6 @@ if __name__ == "__main__":
             print("get text:", text)
             index = get_index(text)
             x, y = get_location_by_index(index, CONFIG)
-            pag.moveTo(x, y, duration=0.3)
+            pag.moveTo(x, y, duration=CONFIG.move_duration, tween=pag.easeInQuad)
 
-        time.sleep(2)
+        time.sleep(CONFIG.loop_interval)
