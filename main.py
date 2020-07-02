@@ -142,6 +142,9 @@ def get_index(text):
         ret = 0
     return ret
 
+def is_valid_index(index):
+    return 1 <= index <= 40
+
 def get_location_by_index(index, c: Config):
     # zero based
     grid_x_size = (c.grid_x_end - c.grid_x)/c.grid_x_count
@@ -230,7 +233,13 @@ if __name__ == "__main__":
         else:
             print("Get text:", text)
             index = get_index(text)
-            x, y = get_location_by_index(index, CONFIG)            
-            pag.moveTo(x, y, duration=CONFIG.move_duration, tween=pag.easeInQuad)
-
+            if is_valid_index(index):
+                x, y = get_location_by_index(index, CONFIG)            
+                pag.moveTo(x, y, duration=CONFIG.move_duration, tween=pag.easeInQuad)
+            else:
+                if index == 0:
+                    print("No one to heal")
+                else:
+                    print("Invalid index", index)
+                    
         time.sleep(CONFIG.loop_interval)
