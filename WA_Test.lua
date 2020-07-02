@@ -36,10 +36,18 @@ function WA_IterateGroupMembers (reversed, forceParty)
 end
 
 math.randomseed(os.time())
-local index = math.random(1, 40)
+INDEX = math.random(1, 40)
 function UnitHealth(unit)
-    if unit == string.format("raid%d", index) then
+    if unit == string.format("raid%d", INDEX) then
         return 100
+    else
+        return 1000
+    end
+end
+
+function UnitHealth2(unit)
+    if unit == string.format("raid%d", INDEX) then
+        return 1000
     else
         return 1000
     end
@@ -51,10 +59,36 @@ end
 
 require "WA"
 
-local result = aura_env.createDisplayText()
-local new_index = tonumber(result:sub(1, 2))
-print(string.format("%d vs %d", index, new_index))
-if new_index == index then
+local passed = true
+aura_env.fre = -1
+for i = 1, 10 do
+    INDEX = math.random(1, 40)
+    local result = aura_env.createDisplayText()
+    local new_index = tonumber(result:sub(1, 2))
+    if new_index ~= INDEX then
+        print("not passed")
+        print(string.format("%d vs %d", INDEX, new_index))
+        passed = false
+        break
+    end
+end
+
+-- test "000000"
+UnitHealth = UnitHealth2
+
+for i = 1, 10 do
+    INDEX = math.random(1, 40)
+    local result = aura_env.createDisplayText()
+    local new_index = tonumber(result:sub(1, 2))
+    if new_index ~= 0 then
+        print("not passed")
+        print(string.format("%d vs %d", INDEX, new_index))
+        passed = false
+        break
+    end
+end
+
+if passed then
     print("passed")
 else
     print("not passed")
