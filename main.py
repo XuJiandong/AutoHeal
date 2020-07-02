@@ -26,6 +26,7 @@ else:
     RETINA = False
 RETINA = False
 
+
 class Config():
     def __init__(self):
         self.text_x = 0
@@ -53,7 +54,7 @@ class Config():
             else:
                 print("The user wants to calibrate again ...")
         else:
-            print("no config loaded, start to calibrate ...")
+            print("No config loaded, start to calibrate ...")
 
         print("Please right click the start of text area")
         (self.text_x, self.text_y) = get_position_with_click()
@@ -79,7 +80,7 @@ class Config():
                            sort_keys=True, indent=4)
                            
         except Exception as e:
-            print(f"failed to write to {CONFIG_FILE_NAME}")
+            print(f"Failed to write to {CONFIG_FILE_NAME}")
             print(e)
             return False
         return True
@@ -100,7 +101,7 @@ class Config():
                 self.grid_y_end = json_obj["grid_y_end"]
         except Exception as e:
             # print(e)
-            print(f"failed to load from {CONFIG_FILE_NAME}")
+            print(f"Failed to load from {CONFIG_FILE_NAME}")
             return False
         return True
 
@@ -173,7 +174,7 @@ def captured_text_screens():
 def show_location():
     print('Press Ctrl-C to quit.')
     if RETINA:
-        print("retina enabled")
+        print("Retina enabled")
     try:
         while True:
             x, y = pag.position()
@@ -186,6 +187,10 @@ def show_location():
     except KeyboardInterrupt:
         print('\n')
 
+def in_grid_area():
+    global CONFIG
+    x_now, y_now = pag.position()
+    return CONFIG.grid_x <= x_now <= CONFIG.grid_x_end and CONFIG.grid_y <= y_now <= CONFIG.grid_y_end
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -201,24 +206,31 @@ if __name__ == "__main__":
     if args.test:
         CONFIG.calibrate()
         for img in captured_text_screens():
-            print("get text:", image_to_digits(img))
+            print("Get text:", image_to_digits(img))
             time.sleep(2)     
         os._exit(0)
 
     # main routine
     CONFIG.calibrate()
     print("---------- started, press ctrl+C to stop ------------")
+    sleep_count = 0
     for img in captured_text_screens():
+        while not in_grid_area():
+            time.sleep(0.1)
+            sleep_count += 1
+            if sleep_count % 30 == 0:
+                print("Out of grid range, still alive")
+
         text = image_to_digits(img)
         if not validate_text(text):
             if SAVE_SCREENSHOT:
                 cv2.imwrite('screen.png', img)
-                print("save screenshot to screen.png")
-            print(f"invalid text: {text}")
+                print("Save screenshot to screen.png")
+            print(f"Invalid text: {text}")
         else:
-            print("get text:", text)
+            print("Get text:", text)
             index = get_index(text)
-            x, y = get_location_by_index(index, CONFIG)
+            x, y = get_location_by_index(index, CONFIG)            
             pag.moveTo(x, y, duration=CONFIG.move_duration, tween=pag.easeInQuad)
 
         time.sleep(CONFIG.loop_interval)
