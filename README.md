@@ -46,3 +46,4 @@ https://pyautogui.readthedocs.io/en/latest/
 https://pypi.org/project/pynput/
 
 If the mouse position is out of grid range, it does nothing.
+Hit Ctrl+F11 to pause, hit them again to resume.

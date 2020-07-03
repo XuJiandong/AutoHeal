@@ -13,7 +13,7 @@ from pynput import keyboard, mouse
 from pynput.keyboard import Key, Controller
 import os
 import math
-
+from threading import Thread
 
 SAVE_SCREENSHOT=False
 RETINA=True
@@ -163,7 +163,7 @@ def captured_text_screens():
     global CONFIG
     mon = {'left': CONFIG.text_x, 'top': CONFIG.text_y, 
         'width': CONFIG.text_x_end - CONFIG.text_x, 'height': CONFIG.text_y_end - CONFIG.text_y}
-    print(f"left: {mon['left']}, top: {mon['top']}, width: {mon['width']}, height: {mon['height']} ")
+    # print(f"left: {mon['left']}, top: {mon['top']}, width: {mon['width']}, height: {mon['height']} ")
     with mss() as sct:
         while True:
             last_time = time.time()
@@ -195,6 +195,19 @@ def in_grid_area():
     x_now, y_now = pag.position()
     return CONFIG.grid_x <= x_now <= CONFIG.grid_x_end and CONFIG.grid_y <= y_now <= CONFIG.grid_y_end
 
+
+class HotkeyThread(Thread):
+    def __init__(self):
+        Thread.__init__(self)
+        self.paused = False
+
+    def run(self):
+        def on_activate():
+            self.paused = not self.paused
+            print('toggle paused to', self.paused)
+        with keyboard.GlobalHotKeys({'<ctrl>+<F11>': on_activate}) as h:
+            h.join()
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--show", action='store_true', help="show location")
@@ -215,14 +228,20 @@ if __name__ == "__main__":
 
     # main routine
     CONFIG.calibrate()
-    print("---------- started, press ctrl+C to stop ------------")
+    print("---------- started, press ctrl+C to stop (or twice) ------------")
+    hotkey_thread = HotkeyThread()
+    hotkey_thread.start()
+
     sleep_count = 0
     for img in captured_text_screens():
-        while not in_grid_area():
+        while not in_grid_area() or hotkey_thread.paused:
             time.sleep(0.1)
             sleep_count += 1
             if sleep_count % 30 == 0:
-                print("Out of grid range, still alive")
+                if hotkey_thread.paused:
+                    print("Paused by hot key (Ctrl+F11), still alive")
+                else:
+                    print("Out of grid range, still alive")
 
         text = image_to_digits(img)
         if not validate_text(text):
