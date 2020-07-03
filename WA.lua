@@ -4,22 +4,6 @@ aura_env.fre = 0.1 -- update frequency
 aura_env.threshold = 100 -- unit: 100, return 000000 if damaged heal is less than this threshold
 
 
--- verify it available
---
-local UnitIsInRange = nil
-if UnitInRange then
-    UnitIsInRange = UnitInRange
-else
-    local playerClass = select(2, UnitClass("player"))
-    local rezSpell = ({DRUID=20484,PRIEST=2006,PALADIN=7328,SHAMAN=2008,MONK=115178,DEATHKNIGHT=61999,WARLOCK=20707})[playerClass]
-    if rezSpell then
-        rezSpell = GetSpellInfo(rezSpell)
-        UnitIsInRange = function(unit)
-            return IsSpellInRange(rezSpell, unit) == 1
-        end
-    end
-end
-
 -- TODO: check offline?
 local function deficit(unit)
     if UnitIsDeadOrGhost(unit) or not UnitExists(unit) then
@@ -33,7 +17,7 @@ local function deficit(unit)
     if UnitIsFeignDeath and  UnitIsFeignDeath(unit) then
         return 0
     end
-    if UnitIsInRange and not UnitIsInRange(unit) then
+    if UnitInRange and not UnitInRange(unit) then
         return 0
     end
     return  max_health - health

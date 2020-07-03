@@ -205,10 +205,15 @@ class HotkeyThread(Thread):
         def on_activate():
             self.paused = not self.paused
             print('toggle paused to', self.paused)
-        with keyboard.GlobalHotKeys({'<ctrl>+<F11>': on_activate}) as h:
-            h.join()
+        try:
+            with keyboard.GlobalHotKeys({'<ctrl>+<F11>': on_activate}) as h:
+                h.join()
+        except KeyboardInterrupt as e:
+            print("Ctrl+C received, quit")
+            os._exit(1)
 
-if __name__ == "__main__":
+
+def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--show", action='store_true', help="show location")
     parser.add_argument("-t", "--test", action='store_true', help="test")
@@ -262,3 +267,10 @@ if __name__ == "__main__":
                     print("Invalid index", index)
                     
         time.sleep(CONFIG.loop_interval)
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt as e:
+        print("Ctrl+C received, quit")
+        os._exit(1)
