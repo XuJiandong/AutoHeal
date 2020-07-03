@@ -1,5 +1,7 @@
 # Auto Heal
 
+![CI](https://github.com/XuJiandong/AutoHeal/workflows/CI/badge.svg)
+
 ## Install and Run
 - Install python3
 
