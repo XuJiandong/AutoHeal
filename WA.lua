@@ -1,22 +1,56 @@
 aura_env.lastRun = nil
 aura_env.text = "N/A"
 aura_env.fre = 0.1 -- update frequency
-aura_env.threshold = 500 -- unit: 100, return 000000 if damaged heal is less than this threshold
+aura_env.threshold = 100 -- unit: 100, return 000000 if damaged heal is less than this threshold
 
--- 1. use grid remaining health
--- 2. alive
--- 3. online
+
+-- verify it available
+--
+local UnitIsInRange = nil
+if UnitInRange then
+    UnitIsInRange = UnitInRange
+else
+    local playerClass = select(2, UnitClass("player"))
+    local rezSpell = ({DRUID=20484,PRIEST=2006,PALADIN=7328,SHAMAN=2008,MONK=115178,DEATHKNIGHT=61999,WARLOCK=20707})[playerClass]
+    if rezSpell then
+        rezSpell = GetSpellInfo(rezSpell)
+        UnitIsInRange = function(unit)
+            return IsSpellInRange(rezSpell, unit) == 1
+        end
+    end
+end
+
+-- TODO: check offline?
+local function deficit(unit)
+    if UnitIsDeadOrGhost(unit) or not UnitExists(unit) then
+        return 0
+    end
+    local max_health = UnitHealthMax(unit)
+    local health = UnitHealth(unit)
+    if max_health == 0 or health == 0 then
+        return 0
+    end
+    if UnitIsFeignDeath and  UnitIsFeignDeath(unit) then
+        return 0
+    end
+    if UnitIsInRange and not UnitIsInRange(unit) then
+        return 0
+    end
+    return  max_health - health
+end
+
+
 aura_env.display = function()
     local values = {}
     for i = 1, 40 do
-        values[i] = {0, 0, 0}
+        values[i] = {0, 0}
     end
     local index = 1
     for unit in WA_IterateGroupMembers() do
-        values[index] = {index, UnitHealthMax(unit) - UnitHealth(unit)}
+        values[index] = {index, deficit(unit)}
         index = index + 1
     end
-    table.sort(values, function(a,b) return a[2] > b[2] end)
+    table.sort(values, function(a, b) return a[2] > b[2] end)
     if values[1][2] < aura_env.threshold then
         ret = "000000"
     else

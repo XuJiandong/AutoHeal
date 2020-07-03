@@ -19,6 +19,27 @@ function GetNumGroupMembers()
     return 40
 end
 
+function UnitClass(unit)
+    return "", 3
+end
+
+function GetSpellInfo(s)
+    return 0
+end
+
+function IsSpellInRange(a, b)
+    return 1
+end
+
+function UnitIsDeadOrGhost(unit)
+    return false
+end
+
+function UnitExists(unit)
+    return true
+end
+
+
 function WA_IterateGroupMembers (reversed, forceParty)
   local unit  = (not forceParty and IsInRaid()) and 'raid' or 'party'
   local numGroupMembers = (forceParty and GetNumSubgroupMembers()  or GetNumGroupMembers())
@@ -87,6 +108,45 @@ for i = 1, 10 do
         break
     end
 end
+
+-- test out of range, death, not exist
+for i = 1, 10 do
+
+    function IsSpellInRange(a, b)
+        return 1
+    end
+
+    function UnitIsDeadOrGhost(unit)
+        return false
+    end
+
+    function UnitExists(unit)
+        return true
+    end
+    local choice = math.random(1, 3)
+    if choice == 1 then
+        IsSpellInRange = function(s, u)
+            return 0
+        end
+    elseif choice == 2 then
+        UnitIsDeadOrGhost = function (unit)
+            return true
+        end
+    else
+        UnitExists = function (unit)
+            return false
+        end
+    end
+
+    INDEX = math.random(1, 40)
+    local result = aura_env.createDisplayText()
+    if result ~= "000000" then
+        print("out of range, not passed")
+        passed = false
+        break
+    end
+end
+
 
 if passed then
     print("passed")
