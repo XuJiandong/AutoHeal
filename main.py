@@ -123,7 +123,7 @@ def image_to_digits(img):
     global CUSTOM_CONFIG
 
     img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY) # gray
-    #img = cv2.bitwise_not(img) # invert
+    img = cv2.bitwise_not(img) # invert
     result = pytesseract.image_to_string(img, config=CUSTOM_CONFIG)
     # add validation here
     return result
@@ -218,6 +218,7 @@ def main():
     parser.add_argument("-s", "--show", action='store_true', help="show location")
     parser.add_argument("-t", "--test", action='store_true', help="test")
     parser.add_argument("-c", "--calibrate", action='store_true', help="calibrate")
+    parser.add_argument("-i", "--icebolt", action="store_true", help="icebolt")
 
     parser.add_argument('rest', nargs=argparse.REMAINDER)
     args = parser.parse_args()
@@ -230,6 +231,24 @@ def main():
             print("Get text:", image_to_digits(img))
             time.sleep(2)     
         os._exit(0)
+    if args.icebolt:
+        print("---------- started, press ctrl+C to stop (or twice) ------------")
+        hotkey_thread = HotkeyThread()
+        hotkey_thread.start()
+        sleep_count = 0
+        while True:
+            pag.press("v")
+            time.sleep(1.5)
+            pag.press("v")
+            time.sleep(1)
+            pag.press("v")
+            while hotkey_thread.paused:
+                time.sleep(0.1)
+                sleep_count += 1
+                if sleep_count % 30 == 0:
+                    print("Paused by hot key (Ctrl+F11), still alive")
+        os._exit(0)
+
 
     # main routine
     CONFIG.calibrate()

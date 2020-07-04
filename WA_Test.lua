@@ -39,6 +39,10 @@ function UnitExists(unit)
     return true
 end
 
+function  GetRaidRosterInfo(i) 
+    return "", "", math.floor((i-1)/5)+1, ""
+end
+
 
 function WA_IterateGroupMembers (reversed, forceParty)
   local unit  = (not forceParty and IsInRaid()) and 'raid' or 'party'
