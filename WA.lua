@@ -4,8 +4,10 @@ aura_env.fre = 0.1 -- update frequency
 aura_env.threshold = 100 -- unit: 100, return 000000 if damaged heal is less than this threshold
 
 local function getUnit(index)
-    return string.format("raid%d", index)
+    local unit  = IsInRaid() and 'raid' or 'party'
+    return string.format("%s%d", unit, index)
 end
+
 
 local function deficit(unit) 
     if UnitIsDeadOrGhost(unit) or not UnitExists(unit) then
