@@ -53,7 +53,7 @@ aura_env.display = function()
 
         local unit = getUnit(index)
         values[index] = {index, deficit(unit)}
-        table.insert(debug, string.format("%d, %s", index, name))
+        table.insert(debug, string.format("%d, %q", index, name))
     end
 
 
