@@ -8,6 +8,8 @@ local function getUnit(index)
     return string.format("%s%d", unit, index)
 end
 
+local offline = nil
+local grid_deficit = nil
 
 local function deficit(unit) 
     if UnitIsDeadOrGhost(unit) or not UnitExists(unit) then
@@ -25,19 +27,31 @@ local function deficit(unit)
         return 0
     end
     if Grid2 and Grid2.GetStatusByName then
-        local offline = Grid2:GetStatusByName("offline")
+        if not offline then
+            offline = Grid2:GetStatusByName("offline")
+        end
         if offline and offline:IsActive(unit) then
             return 0
-        end        
+        end
+        -- use Grid's deficit
+        if not grid_deficit then
+            grid_deficit = Grid2:GetStatusByName("health-deficit")
+        end
+        if grid_deficit and grid_deficit:IsActive(unit) then
+            local d = grid_deficit:GetText(unit)
+            if d then
+                return math.abs(tonumber(d))
+            end
+        end
     end
-    return  max_health - health
+    return  math.abs(max_health - health)
 end
 
 
 aura_env.display = function()
     local values = {}
     for i = 1, 40 do
-        values[i] = {0, 0}
+        values[i] = {0, 0, nil}
     end
     local subgroup_count = {}
     local debug = {}
@@ -52,16 +66,15 @@ aura_env.display = function()
         index = (subgroup - 1)*5 + subgroup_count[subgroup]
 
         local unit = getUnit(index)
-        values[index] = {index, deficit(unit)}
-        table.insert(debug, string.format("%d, %q", index, name))
+        values[index] = {index, deficit(unit), name}
+        -- table.insert(debug, string.format("%d, %q", index, name))
     end
-
 
     table.sort(values, function(a, b) return a[2] > b[2] end)
     if values[1][2] < aura_env.threshold then
         ret = "000000"
     else
-        ret = string.format("%02d%02d%02d", values[1][1], values[2][1], values[3][1])
+        ret = string.format("%02d0000", values[1][1])
     end    
     return ret
 end
