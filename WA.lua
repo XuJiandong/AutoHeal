@@ -1,7 +1,7 @@
 aura_env.lastRun = nil
 aura_env.text = "N/A"
 aura_env.fre = 0.1 -- update frequency
-aura_env.threshold = 100 -- unit: 100, return 000000 if damaged heal is less than this threshold
+aura_env.threshold = 800 -- unit: 100, return 000000 if damaged heal is less than this threshold
 
 local function getUnit(index)
     local unit  = IsInRaid() and 'raid' or 'party'
@@ -10,6 +10,16 @@ end
 
 local offline = nil
 local grid_deficit = nil
+
+local function my_tonumber(text)
+    local found = string.find(text, "k")
+    text = string.gsub(text, "k", "")
+    local ret = tonumber(text)
+    if found then
+        ret = ret * 1000
+    end
+    return math.abs(ret)
+end
 
 local function deficit(unit) 
     if UnitIsDeadOrGhost(unit) or not UnitExists(unit) then
@@ -40,7 +50,10 @@ local function deficit(unit)
         if grid_deficit and grid_deficit:IsActive(unit) then
             local d = grid_deficit:GetText(unit)
             if d then
-                return math.abs(tonumber(d))
+                local v = my_tonumber(d)
+                if v > 0 then
+                    return v
+                end
             end
         end
     end
@@ -62,14 +75,14 @@ aura_env.display = function()
         else
             subgroup_count[subgroup] = subgroup_count[subgroup] + 1
         end
-
+        
         index = (subgroup - 1)*5 + subgroup_count[subgroup]
-
+        
         local unit = getUnit(index)
         values[index] = {index, deficit(unit), name}
         -- table.insert(debug, string.format("%d, %q", index, name))
     end
-
+    
     table.sort(values, function(a, b) return a[2] > b[2] end)
     if values[1][2] < aura_env.threshold then
         ret = "000000"
@@ -87,3 +100,4 @@ aura_env.createDisplayText = function()
     end
     return aura_env.text
 end
+

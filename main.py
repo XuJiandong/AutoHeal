@@ -216,6 +216,7 @@ class HotkeyThread(Thread):
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-s", "--show", action='store_true', help="show location")
+    parser.add_argument("-g", "--group20", action='store_true', help="group 20, default off")
     parser.add_argument("-t", "--test", action='store_true', help="test")
     parser.add_argument("-c", "--calibrate", action='store_true', help="calibrate")
     parser.add_argument("-i", "--icebolt", action="store_true", help="icebolt")
@@ -249,7 +250,10 @@ def main():
                     print("Paused by hot key (Ctrl+F11), still alive")
         os._exit(0)
 
-
+    if args.group20:
+        print("Group 20 used")
+        CONFIG.grid_x_count = 4
+    
     # main routine
     CONFIG.calibrate()
     print("---------- started, press ctrl+C to stop (or twice) ------------")
@@ -279,6 +283,7 @@ def main():
             if is_valid_index(index):
                 x, y = get_location_by_index(index, CONFIG)            
                 pag.moveTo(x, y, duration=CONFIG.move_duration, tween=pag.easeInQuad)
+                pag.press("f10")
             else:
                 if index == 0:
                     print("No one to heal")
