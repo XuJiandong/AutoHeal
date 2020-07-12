@@ -83,7 +83,7 @@ aura_env.display = function()
             end
             
             local col_row = string.format("%d%d", subgroup, subgroup_count[subgroup])            
-            values[i] = {col_row, deficit(unit), string(name)}
+            values[i] = {col_row, deficit(unit), name}
         else
             values[i] = {"00", 0, "Not Player"}
         end
@@ -93,7 +93,7 @@ aura_env.display = function()
     if values[1][2] < aura_env.threshold then
         ret = "00"
     else
-        ret = string.format("%s%d%s", values[1][1], values[1][2], values[1][3])
+        ret = string.format("%s%d%s", values[1][1], values[1][2], tostring(values[1][3]))
     end
     return ret
 end
