@@ -1,7 +1,7 @@
 aura_env.lastRun = nil
 aura_env.text = "N/A"
 aura_env.fre = 0.1 -- update frequency
-aura_env.threshold = 800 -- unit: 100, return 000000 if damaged heal is less than this threshold
+aura_env.threshold = 700 -- unit: 100, return 000000 if damaged heal is less than this threshold
 
 local function getUnit(index)
     local unit  = IsInRaid() and 'raid' or 'party'
@@ -63,32 +63,38 @@ end
 
 aura_env.display = function()
     local values = {}
-    for i = 1, 40 do
+    local member_count = GetNumGroupMembers()
+    if not IsInRaid() or member_count < 1 then
+        return "00"
+    end
+
+    for i = 1, member_count do
         values[i] = {0, 0, nil}
     end
     local subgroup_count = {}
-    local debug = {}
-    for i = 1, GetNumGroupMembers() do
-        local name, _, subgroup, _, _ = GetRaidRosterInfo(i)
-        if not subgroup_count[subgroup] then
-            subgroup_count[subgroup] = 1
+    for i = 1, member_count do
+        local unit = getUnit(i)
+        if UnitIsPlayer(unit) then
+            local name, _, subgroup, _, _ = GetRaidRosterInfo(i)
+            if not subgroup_count[subgroup] then
+                subgroup_count[subgroup] = 1
+            else
+                subgroup_count[subgroup] = subgroup_count[subgroup] + 1
+            end
+            
+            local col_row = string.format("%d%d", subgroup, subgroup_count[subgroup])            
+            values[i] = {col_row, deficit(unit), string(name)}
         else
-            subgroup_count[subgroup] = subgroup_count[subgroup] + 1
+            values[i] = {"00", 0, "Not Player"}
         end
-        
-        index = (subgroup - 1)*5 + subgroup_count[subgroup]
-        
-        local unit = getUnit(index)
-        values[index] = {index, deficit(unit), name}
-        -- table.insert(debug, string.format("%d, %q", index, name))
     end
     
     table.sort(values, function(a, b) return a[2] > b[2] end)
     if values[1][2] < aura_env.threshold then
-        ret = "000000"
+        ret = "00"
     else
-        ret = string.format("%02d0000", values[1][1])
-    end    
+        ret = string.format("%s%d%s", values[1][1], values[1][2], values[1][3])
+    end
     return ret
 end
 

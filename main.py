@@ -129,10 +129,9 @@ def image_to_digits(img):
     return result
 
 def validate_text(text):
-    if text == None or len(text) != 6:
+    if text == None or len(text) < 2:
         return False
     return True
-
 
 def get_index(text):
     ret = 0
@@ -143,15 +142,15 @@ def get_index(text):
     return ret
 
 def is_valid_index(index):
-    return 1 <= index <= 40
+    return 0 < index <= 85
 
 def get_location_by_index(index, c: Config):
     # zero based
     grid_x_size = (c.grid_x_end - c.grid_x)/c.grid_x_count
     grid_y_size = (c.grid_y_end - c.grid_y)/c.grid_y_count
 
-    x = math.floor((index-1)/ c.grid_y_count)
-    y = (index - 1) % c.grid_y_count
+    x = math.floor(index/10) - 1
+    y = index % 10 - 1
 
     pos_x = x*grid_x_size + grid_x_size/2 + c.grid_x
     pos_y = y*grid_y_size + grid_y_size/2 + c.grid_y
