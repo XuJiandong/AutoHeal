@@ -11,6 +11,10 @@ function IsInRaid()
     return true
 end
 
+function UnitIsPlayer(unit)
+    return true
+end
+
 function GetNumSubgroupMembers()
     return 5
 end
